@@ -1,0 +1,227 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=640, user-scalable=no, target-densitydpi=device-dpi">
+    <title>骚年，有个月薪25K的offer想!给!你!</title>
+    <link href="css/layout.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container" id="container">
+        <div class="game_con">
+            <div style="overflow: visible; -webkit-transform: translateZ(0); transform: translateZ(0);">
+                <canvas id="canvas" width="640" height="960">Your browser does not support the canvas element.</canvas>
+            </div>
+            <div class="time_box">
+                <span class="second_box"><span id="second" class="second">30</span>&nbsp;&nbsp;<span id="mSecond" class="mSecond">34</span></span>
+            </div>
+            <span id="button" class="button"></span>
+            <div class="btn_begin" id="btn_begin"></div>
+            <a class="btn_result" id="btn_result" href="#"></a>
+        </div>
+        <script>
+            (function () {
+                var WINDOW_WIDTH = 640;
+                var WINDOW_HEIGHT = 960;
+                var OFFWIDTH = 160;
+                var OFFHEIGHT = 160;
+
+                var curPos = [],
+                    prePos = [];
+                var animateCtrl = 0,
+                    vCtrl = 50;//下滑速度控制
+
+                var allTime = 30,
+                    curTime = 0;
+
+                var timeFlag = true,
+                    timeCtrl;
+
+                var errorClick = false;
+
+                var pic01Load = false,
+                    pic02Load = false;
+
+                //引入图片
+                var canvasPic01 = new Image(),
+                    canvasPic02 = new Image();
+                canvasPic01.src = "images/pic_office.png";
+                canvasPic02.src = "images/pic_office_get.png";
+
+                canvasPic01.onload = function () {
+                    pic01Load = true;
+                }
+
+                canvasPic02.onload = function () {
+                    pic02Load = true;
+                }
+
+
+                var canvas = document.getElementById("canvas"),
+                    cxt = canvas.getContext("2d");
+
+                document.getElementById("button").addEventListener("click", function () {
+
+                    clickOff();
+
+                });
+
+                var container = document.getElementById("container")
+
+                document.getElementById("canvas").onclick = function (event) {
+                    var mouseX = event.clientX - container.offsetLeft - this.offsetLeft;
+                    var mouseY = event.clientY - this.offsetTop;
+                    if (curPos[3].y <= mouseY && (curPos[3].y + 160) > mouseY && curPos[3].x <= mouseX && (curPos[3].x + 160) > mouseX) {
+
+                        //alert(mouseX);
+                        //alert(curPos[3].x);
+                        clickOff();
+                    }
+                    else {
+                        errorClick = true;
+                        alert("游戏结束!");
+                    }
+                };
+
+                window.onload = function () {
+                    canvas.width = WINDOW_WIDTH;
+                    canvas.height = WINDOW_HEIGHT;
+                    Init(cxt);//初始化
+
+                }
+
+                document.getElementById("btn_begin").addEventListener("click", function () {
+                    //var tCtrl, mark = 0;
+                    //if (!!navigator.userAgent.match(/MQQBrowser/)) {
+
+                    //}
+                    clickOff();
+
+                    document.getElementById("btn_begin").style.display = "none";
+                });
+
+                function clickOff() {
+                    //alert(curPos[2].y);
+                    if (timeFlag) {
+                        timeCtrl = window.setInterval(function () {
+                            render();
+                            update();
+                        }, 50);
+                    }
+                    var index = Math.floor(Math.random() * 4 + 1);//当前行随机列
+                    var Obj = new Object();
+                    Obj.x = (index - 1) * OFFWIDTH;
+                    Obj.y = (0 - 1) * OFFHEIGHT;
+                    curPos.unshift(Obj);//保存最初可见的5封offer信的位置
+                    animateDown();
+                }
+
+
+                //初始化
+                function Init(cxt) {
+                    for (var i = 1; i < 5; i++) {
+                        var index = i < 4 ? Math.floor(Math.random() * 4 + 1) : 2;//当前行随机列
+
+                        var Obj = new Object();
+                        Obj.x = (index - 1) * OFFWIDTH;
+                        Obj.y = (i - 1) * OFFHEIGHT;
+                        curPos.push(Obj);//保存最初可见的5封offer信的位置 
+
+                        DrawOffic(canvasPic01, (index - 1) * OFFWIDTH, (i - 1) * OFFHEIGHT);
+                    }
+                    absPos();
+
+                }
+
+                //绘制色块
+                function DrawOffic(image, xPos, yPos) {
+                    if (pic01Load && pic02Load) {
+                        cxt.drawImage(image, xPos, yPos, OFFWIDTH, OFFHEIGHT);
+                    }
+                    else {
+                        alert("sss");
+                    }
+                }
+
+                //向下滑动
+                function animateDown() {
+                    if (animateCtrl <= OFFHEIGHT - vCtrl) {
+                        animateCtrl += vCtrl;
+                        cxt.clearRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+                        for (index in curPos) {
+                            curPos[index].y += vCtrl;
+                            if (index < curPos.length - 1) {
+                                DrawOffic(canvasPic01, curPos[index].x, curPos[index].y);
+                            }
+                            else {
+                                DrawOffic(canvasPic02, curPos[index].x, curPos[index].y);
+                            }
+                        }
+                        window.requestAnimationFrame(
+                            function () { animateDown(); });
+
+                    }
+                    else {
+                        //alert(curPos[3].y);
+                        curPos.pop();
+                        animateCtrl = 0;
+                        absPos();
+                    }
+                }
+
+                //移动可点击块位置
+                function absPos() {
+                    document.getElementById("button").style.top = curPos[curPos.length - 1].y + "px";
+                    document.getElementById("button").style.left = curPos[curPos.length - 1].x + "px";
+                }
+
+                /*
+                 * content  `: 时间倒计时控制
+                 */
+
+                var allTime = 29;
+
+                var second = document.getElementById("second"),
+                    mSecond = document.getElementById("mSecond");
+                var startTime = curTime = new Date(),
+                    curSecond = allTime, curMSecond = 0;
+
+
+                function render() {
+                    if ((allTime - Math.floor(curSecond)) >= 0 && !errorClick) {
+                        second.childNodes[0].nodeValue = (allTime - Math.floor(curSecond)) < 10 ? "0" + (allTime - Math.floor(curSecond)) : (allTime - Math.floor(curSecond));
+                        mSecond.childNodes[0].nodeValue = (100 - Math.floor(curMSecond)) < 10 ? "0" + (100 - Math.floor(curMSecond)) : (100 - Math.floor(curMSecond));
+                    }
+                    else {
+                        window.clearInterval(timeCtrl);
+                        second.childNodes[0].nodeValue = "00";
+                        mSecond.childNodes[0].nodeValue = "00";
+                        document.getElementById("btn_result").style.display = "block";
+                    }
+                }
+
+                function update() {
+                    var nextLen = new Date().getTime() - startTime.getTime();
+                    var nextSeconds = nextLen / 1000;
+                    var nextMSeconds = Math.floor((nextLen % 1000) / 10);
+
+                    var curLen = curTime.getTime() - startTime.getTime();
+                    var curSeconds = curLen / 1000;
+                    var curMSeconds = Math.floor((curLen % 1000) / 10);
+
+                    if (nextSeconds != curSeconds) {
+                        curSecond = nextSeconds;
+                    }
+                    if (nextMSeconds != curMSeconds) {
+                        curMSecond = nextMSeconds;
+                    }
+
+
+                }
+
+            })();
+
+        </script>
+    </div>
+</body>
+</html>

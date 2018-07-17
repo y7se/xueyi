@@ -1,0 +1,238 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=640, user-scalable=no, target-densitydpi=device-dpi">
+    <title>骚年，有个月薪25K的offer想!给!你!</title>
+    <link href="css/layout.css?v=0.1" rel="stylesheet" />
+    <script> 
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?5e347866cfa74f0e7e3b3bd14ac5dce4";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+</script>
+
+</head>
+<body>
+    <div class="container" id="container">
+        <div class="game_con">
+            <div class="canvas" id="canvas">
+            </div>
+            <div class="time_box">
+                <span class="second_box"><span id="second" class="second">10</span>&nbsp;&nbsp;<span id="mSecond" class="mSecond">00</span></span>
+            </div>
+            <!-- <span id="button" class="button"></span>-->
+            <div class="btn_begin" id="btn_begin"></div>
+            <div class="btn_result" id="btn_result">
+                <a href="result01.html?v=0.0.1" class="result_list" id="result"><span class="txt" id="tipTxt">时间到了，接受现实</span>
+                    <span class="txt02" id="txtBtn">&nbsp;&nbsp;&nbsp;看结果</span>
+                </a>
+            </div>
+        </div>
+        <script>
+            (function () {
+                var WINDOW_WIDTH = 640;
+                var WINDOW_HEIGHT = 960;
+                var OFFWIDTH = 160;
+                var OFFHEIGHT = 160;
+
+                var curPos = [],
+                    prePos = [];
+                var animateCtrl = 0,
+                    vCtrl = 12;//下滑速度控制
+
+                var allTime = 9,
+                    curTime = 0;
+
+                var timeFlag = true,
+                    timeCtrl;
+
+                var errorClick = false;
+
+                var ClickNum = 0;//记录点击office的次数
+
+                var aniFrame = true;
+
+                var tap = !!navigator.userAgent.match(/AppleWebKit.*Mobile.*/) ? "touchstart" : "click";
+
+                document.addEventListener(tap, function (event) {
+
+                    if (event.target.className == "box pic_office") {
+                        //clickOff();
+                        event.target.className = "box pic_office_get";
+                        ClickNum += 1;
+                    }
+
+                });
+
+                var canvas = document.getElementById("canvas");
+
+                window.onload = function () {
+                    Init();//初始化
+
+                }
+
+                document.getElementById("btn_begin").addEventListener("click", function () {
+                    if (timeFlag) {
+                        startTime = new Date();
+                        addNode();
+                        timeCtrl();
+                    }
+                    //clickOff();
+                    timeFlag = false;
+                    document.getElementById("btn_begin").style.display = "none";
+
+                    return false;
+                });
+
+                function timeCtrl() {
+                    if (aniFrame) {
+                        window.requestAnimationFrame(function () {
+                            render();
+                            update();
+                            timeCtrl();
+                        });
+                    }
+                }
+
+                function addNode() {
+                    //alert(curPos[2].y);
+
+                    var index = Math.floor(Math.random() * 4 + 1);//当前行随机列
+
+                    var nodeObj = new Object();
+
+                    var Obj = new Object();
+                    Obj.x = (index - 1) * OFFWIDTH;
+                    Obj.y = (0 - 1) * OFFHEIGHT;
+
+                    var node = document.createElement("div");
+                    node.className = "box pic_office";
+                    //canvas.appendChild(node);
+                    canvas.insertBefore(node, canvas.firstChild);
+
+                    nodeObj.pos = Obj;
+                    nodeObj.node = node;
+
+                    curPos.unshift(nodeObj);//保存最初可见的5封offer信的位置
+
+                    DrawOffic(node, (index - 1) * OFFWIDTH, (0 - 1) * OFFHEIGHT);
+
+                    //console.log(JSON.stringify(curPos));
+
+                    //animateDown();
+                }
+
+
+                //初始化
+                function Init() {
+                    for (var i = 1; i < 5; i++) {
+                        var index = i < 4 ? Math.floor(Math.random() * 4 + 1) : 2;//当前行随机列
+
+                        var nodeObj = new Object();
+
+                        var Obj = new Object();
+                        Obj.x = (index - 1) * OFFWIDTH;
+                        Obj.y = (i - 1) * OFFHEIGHT;
+
+                        var node = document.createElement("div");
+                        node.className = "box pic_office";
+
+                        //node.style.transform = "translate(" + (index - 1) * OFFWIDTH + "px," + (i - 1) * OFFHEIGHT + "px)";
+
+                        canvas.appendChild(node);
+
+                        nodeObj.pos = Obj;
+                        nodeObj.node = node;
+
+                        curPos.push(nodeObj);//保存最初可见的5封offer信的位置 
+
+                        DrawOffic(node, (index - 1) * OFFWIDTH, (i - 1) * OFFHEIGHT);
+                    }
+                    //absPos();
+
+                }
+
+                //绘制色块
+                function DrawOffic(node, xPos, yPos) {
+                    node.style.cssText = '-webkit-transform:translate3d(' + xPos + 'px,' + yPos + 'px,0);transform:translate3d(' + xPos + 'px,' + yPos + 'px,0);';
+                }
+
+                //向下滑动
+                function animateDown() {
+                    if (animateCtrl >= 160) {
+                        canvas.removeChild(curPos[curPos.length - 1].node);
+                        curPos.pop();
+                        addNode();
+                        animateCtrl = 0;
+                    }
+                    else{
+                        animateCtrl += vCtrl;
+                    }
+
+                    for (index in curPos) {
+                        curPos[index].pos.y += vCtrl;
+                        if (index < 5) {
+                            DrawOffic(curPos[index].node, curPos[index].pos.x, curPos[index].pos.y);
+                        }
+                    }
+                }
+
+                /*
+                 * content  : 时间倒计时控制
+                 */
+
+                var second = document.getElementById("second"),
+                    mSecond = document.getElementById("mSecond");
+                var startTime = curTime = new Date(),
+                    curSecond = allTime, curMSecond = 0;
+
+
+                function render() {
+                    if ((allTime - Math.floor(curSecond)) >= 0 && !errorClick) {
+                        second.childNodes[0].nodeValue = (allTime - Math.floor(curSecond)) < 10 ? "0" + (allTime - Math.floor(curSecond)) : (allTime - Math.floor(curSecond));
+                        mSecond.childNodes[0].nodeValue = (100 - Math.floor(curMSecond)) < 10 ? "0" + (100 - Math.floor(curMSecond)) : (100 - Math.floor(curMSecond));
+                        animateDown();
+                    }
+                    else {
+                        aniFrame = false;
+                        second.childNodes[0].nodeValue = "00";
+                        mSecond.childNodes[0].nodeValue = "00";
+
+                        if (ClickNum == 0) {
+                            document.getElementById("tipTxt").innerHTML = "&nbsp;&nbsp;天噜，一个都没抢到";
+                            document.getElementById("txtBtn").innerHTML = "&nbsp;&nbsp;换个姿势，重玩";
+                            document.getElementById("result").setAttribute("href", "game.html");
+                        }
+                        else {
+                            document.getElementById("result").setAttribute("href", "result0" + Math.floor(Math.random() * 5 + 1) + ".html?score=" + ClickNum);
+                        }
+                        document.getElementById("btn_result").style.display = "block";
+                    }
+                }
+
+                function update() {
+                    var nextLen = new Date().getTime() - startTime.getTime();
+                    var nextSeconds = nextLen / 1000;
+                    var nextMSeconds = Math.floor((nextLen % 1000) / 10);
+
+                    var curLen = curTime.getTime() - startTime.getTime();
+                    var curSeconds = curLen / 1000;
+                    var curMSeconds = Math.floor((curLen % 1000) / 10);
+
+                    if (nextSeconds != curSeconds) {
+                        curSecond = nextSeconds;
+                    }
+                    if (nextMSeconds != curMSeconds) {
+                        curMSecond = nextMSeconds;
+                    }
+                }
+
+            })();
+        </script>
+    </div>
+</body>
+</html>
